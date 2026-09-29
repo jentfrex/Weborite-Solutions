@@ -1,10 +1,15 @@
 import express from 'express';
 import cors from 'cors';
 import nodemailer from 'nodemailer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import db from './db.ts';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.use(cors());
 app.use(express.json());
@@ -43,7 +48,7 @@ app.post('/api/leads', (req, res) => {
   }
 });
 
-// Email Sending gamit ang Nodemailer ug Live Vercel Production Preview URL
+// Email Sending gamit ang Nodemailer ug Live Render Production URL
 app.post('/api/send-email', async (req, res) => {
   try {
     const { clientEmail, clientName, vertical, mockupUrl } = req.body;
@@ -51,8 +56,7 @@ app.post('/api/send-email', async (req, res) => {
     const encodedName = encodeURIComponent(clientName || 'Valued Client');
     const encodedBusiness = encodeURIComponent(vertical || 'Business');
     
-    // Gigamit na nato ang imong tinuod ug buhi nga live Vercel domain aron walay error sa kliyente
-    const finalMockupUrl = mockupUrl || `https://weborite-solutions.vercel.app/preview?name=${encodedName}&business=${encodedBusiness}`;
+    const finalMockupUrl = mockupUrl || `https://weborite-solutions.onrender.com/preview?name=${encodedName}&business=${encodedBusiness}`;
 
     const mailOptions = {
       from: '"Weborite Solutions" <aos2naksum416@gmail.com>',
@@ -62,18 +66,15 @@ app.post('/api/send-email', async (req, res) => {
         <div style="background-color: #f1f5f9; padding: 40px 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
           <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
             
-            <!-- Header with Gradient & Glow Effect -->
             <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 35px 30px; text-align: center; color: white;">
               <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 0.5px; color: #ffffff;">Weborite Solutions</h1>
               <p style="margin: 8px 0 0 0; font-size: 14px; color: #38bdf8; font-weight: 500;">High-Performance Digital Agency Platform</p>
             </div>
 
-            <!-- Body Content -->
             <div style="padding: 40px 30px; color: #334155; line-height: 1.7;">
               <h2 style="margin-top: 0; font-size: 22px; color: #0f172a; font-weight: 600;">Kumusta ${clientName || 'Tag-iya'}!</h2>
               <p style="margin-bottom: 20px; font-size: 15px; color: #475569;">Namatikdan namo ang imong negosyo sa industriya nga <strong style="color: #0f172a;">${vertical || 'General'}</strong> ug naghimo kami og usa ka <strong style="color: #0f172a;">moderno, paspas, ug high-converting nga website mockup</strong> nga espesyal nga gidisenyo para sa pagpalambo sa imong online presence.</p>
               
-              <!-- Call to Action Box with Elegant Styling -->
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #10b981; padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center;">
                 <p style="margin: 0 0 15px 0; font-weight: 600; color: #0f172a; font-size: 16px;">Andam na ang Imong Live Preview:</p>
                 <a href="${finalMockupUrl}" target="_blank" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 15px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);">Ablihi ang Imong Web Mockup</a>
@@ -84,7 +85,6 @@ app.post('/api/send-email', async (req, res) => {
               <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">Labing pagtahod,<br><strong style="color: #0f172a; font-size: 15px;">Ang Team sa Weborite Solutions</strong></p>
             </div>
 
-            <!-- Footer -->
             <div style="background: #f8fafc; padding: 20px; text-align: center; color: #94a3b8; font-size: 12px; border-top: 1px solid #e2e8f0;">
               <p style="margin: 0;">© 2026 Weborite Solutions. Tanang katungod gigahin.</p>
             </div>
@@ -126,6 +126,13 @@ app.post('/api/scrape-leads', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: 'Scraper failed to fetch results' });
   }
+});
+
+// I-serve ang Vite Frontend Static Files human sa tanan nga API routes
+app.use(express.static(path.join(__dirname, '../dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(PORT, () => {
