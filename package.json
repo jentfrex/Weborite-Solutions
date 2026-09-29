@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"tsx server/server.ts\" \"vite\"",
-    "build": "vite build",
+    "build": "npx --no-install vite build",
     "preview": "vite preview",
     "server": "tsx server/server.ts"
   },
