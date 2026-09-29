@@ -43,7 +43,7 @@ app.post('/api/leads', (req, res) => {
   }
 });
 
-// Email Sending gamit ang Nodemailer ug Dynamic Preview URL
+// Email Sending gamit ang Nodemailer ug Live Vercel Production Preview URL
 app.post('/api/send-email', async (req, res) => {
   try {
     const { clientEmail, clientName, vertical, mockupUrl } = req.body;
@@ -51,12 +51,8 @@ app.post('/api/send-email', async (req, res) => {
     const encodedName = encodeURIComponent(clientName || 'Valued Client');
     const encodedBusiness = encodeURIComponent(vertical || 'Business');
     
-    // Gihimo natong dynamic base sa host oamit ang port 5000 o sa gigikanan sa request
-    const protocol = req.protocol;
-    const host = req.get('host') || `localhost:${PORT}`;
-    
-    // Kung naay gipasa nga mockupUrl gikan sa frontend, gamiton na; kung wala, gamiton ang saktong preview route sa atong app
-    const finalMockupUrl = mockupUrl || `${protocol}://${host}/preview?name=${encodedName}&business=${encodedBusiness}`;
+    // Gigamit na nato ang imong tinuod ug buhi nga live Vercel domain aron walay error sa kliyente
+    const finalMockupUrl = mockupUrl || `https://weborite-solutions.vercel.app/preview?name=${encodedName}&business=${encodedBusiness}`;
 
     const mailOptions = {
       from: '"Weborite Solutions" <aos2naksum416@gmail.com>',
@@ -85,7 +81,7 @@ app.post('/api/send-email', async (req, res) => {
 
               <p style="margin-bottom: 20px; font-size: 15px; color: #475569;">Kung ganahan ka sa disenyo ug gusto nimo kining i-deploy sa imong kaugalingong domain aron magsugod na og dawat sa mga kliyente, i-reply lang kini nga email o kontaka kami diretso.</p>
               
-              <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">Labing pagtahod,<br><strong style="color: #0f172a; font-size: 15px;">Ang Team sa Webortie Solutions</strong></p>
+              <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">Labing pagtahod,<br><strong style="color: #0f172a; font-size: 15px;">Ang Team sa Weborite Solutions</strong></p>
             </div>
 
             <!-- Footer -->
